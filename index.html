@@ -1,0 +1,329 @@
+# Mounjaro
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wei & Niu - 猛健樂 (Mounjaro) 雙人紀錄</title>
+    <!-- 引入 Tailwind CSS 進行快速排版 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Chart.js 繪製圖表 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans p-2 md:p-8">
+
+    <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-indigo-600 text-white p-4 md:p-6 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold">Wei & Niu 猛健樂雙人紀錄表</h1>
+        </div>
+
+        <div class="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 左側：輸入表單 -->
+            <div class="lg:col-span-1 bg-indigo-50 p-5 rounded-lg shadow-inner h-fit">
+                <h2 class="text-xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">新增日常紀錄</h2>
+                <form id="trackerForm" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700">日期</label>
+                            <input type="date" id="date" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-gray-700">劑量 (或暫停)</label>
+                            <select id="dose" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500">
+                                <option value="2.5">2.5 mg</option>
+                                <option value="5.0" selected>5.0 mg</option>
+                                <option value="7.5">7.5 mg</option>
+                                <option value="10.0">10.0 mg</option>
+                                <option value="12.5">12.5 mg</option>
+                                <option value="15.0">15.0 mg</option>
+                                <option value="暫停">暫停 (X)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Wei 的資料 -->
+                    <div class="bg-blue-100 p-3 rounded-md border border-blue-200">
+                        <h3 class="font-bold text-blue-800 mb-2">🧑🏻 Wei 的數據</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700">體重 (kg)</label>
+                                <input type="number" id="weiWt" step="0.1" placeholder="未量可留空" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700">施打部位</label>
+                                <select id="weiSite" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                                    <option value="">無 / 未記錄</option>
+                                    <option value="左肚子">1. 左肚子</option>
+                                    <option value="右肚子">2. 右肚子</option>
+                                    <option value="上肚子">3. 上肚子</option>
+                                    <option value="下肚子">4. 下肚子</option>
+                                    <option value="左大腿">5. 左大腿</option>
+                                    <option value="右大腿">6. 右大腿</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Niu 的資料 -->
+                    <div class="bg-pink-100 p-3 rounded-md border border-pink-200">
+                        <h3 class="font-bold text-pink-800 mb-2">👩🏻 Niu 的數據</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700">體重 (kg)</label>
+                                <input type="number" id="niuWt" step="0.1" placeholder="未量可留空" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700">施打部位</label>
+                                <select id="niuSite" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                                    <option value="">無 / 未記錄</option>
+                                    <option value="左肚子">1. 左肚子</option>
+                                    <option value="右肚子">2. 右肚子</option>
+                                    <option value="上肚子">3. 上肚子</option>
+                                    <option value="下肚子">4. 下肚子</option>
+                                    <option value="左大腿">5. 左大腿</option>
+                                    <option value="右大腿">6. 右大腿</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-300 font-bold shadow-md text-lg">
+                        儲存紀錄
+                    </button>
+                </form>
+            </div>
+
+            <!-- 右側：圖表與紀錄列表 -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- 圖表區塊 -->
+                <div>
+                    <h2 class="text-xl font-semibold mb-3">體重下降趨勢圖</h2>
+                    <div class="bg-white p-4 border rounded-lg shadow-sm">
+                        <canvas id="weightChart" height="120"></canvas>
+                    </div>
+                </div>
+
+                <!-- 歷史紀錄區塊 -->
+                <div>
+                    <h2 class="text-xl font-semibold mb-3">詳細歷史紀錄</h2>
+                    <div class="overflow-x-auto h-[400px] border border-gray-200 rounded-lg">
+                        <table class="min-w-full bg-white relative">
+                            <thead class="bg-gray-800 text-white text-sm sticky top-0 z-10 shadow">
+                                <tr>
+                                    <th class="py-3 px-4 text-left font-medium">日期</th>
+                                    <th class="py-3 px-2 text-center font-medium">劑量</th>
+                                    <th class="py-3 px-3 text-center font-medium bg-blue-700">Wei 體重 (部位)</th>
+                                    <th class="py-3 px-2 text-center font-medium bg-blue-800" title="與上次相比 / 與起始相比">Wei 週減/總減</th>
+                                    <th class="py-3 px-3 text-center font-medium bg-pink-700">Niu 體重 (部位)</th>
+                                    <th class="py-3 px-2 text-center font-medium bg-pink-800" title="與上次相比 / 與起始相比">Niu 週減/總減</th>
+                                    <th class="py-3 px-2 text-center font-medium">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordTableBody" class="text-sm divide-y divide-gray-200">
+                                <!-- 紀錄動態產生 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 歷史資料 (L 轉換為 左肚子，R 轉換為 右肚子)
+        const initialData = [
+            { id: 1, date: '2025-10-24', dose: '2.5', weiWt: 84.0, niuWt: 83.0, weiSite: '', niuSite: '' },
+            { id: 2, date: '2025-10-31', dose: '2.5', weiWt: 81.6, niuWt: 81.8, weiSite: '', niuSite: '' },
+            { id: 3, date: '2025-11-07', dose: '5.0', weiWt: 80.6, niuWt: 81.0, weiSite: '', niuSite: '' },
+            { id: 4, date: '2025-11-14', dose: '5.0', weiWt: 79.5, niuWt: 79.5, weiSite: '', niuSite: '' },
+            { id: 5, date: '2025-11-21', dose: '5.0', weiWt: 77.9, niuWt: 78.5, weiSite: '', niuSite: '' },
+            { id: 6, date: '2025-11-28', dose: '5.0', weiWt: 77.3, niuWt: 78.2, weiSite: '', niuSite: '' },
+            { id: 7, date: '2025-12-07', dose: '5.0', weiWt: 76.9, niuWt: 78.3, weiSite: '', niuSite: '' },
+            { id: 8, date: '2025-12-14', dose: '5.0', weiWt: 75.7, niuWt: 77.5, weiSite: '', niuSite: '' },
+            { id: 9, date: '2025-12-21', dose: '5.0', weiWt: 74.7, niuWt: 77.0, weiSite: '', niuSite: '' },
+            { id: 10, date: '2025-12-28', dose: '5.0', weiWt: 74.1, niuWt: 76.5, weiSite: '', niuSite: '' },
+            { id: 11, date: '2026-01-04', dose: '5.0', weiWt: 73.6, niuWt: 76.5, weiSite: '', niuSite: '' },
+            { id: 12, date: '2026-01-11', dose: '5.0', weiWt: 72.8, niuWt: 76.5, weiSite: '右肚子', niuSite: '左肚子' },
+            { id: 13, date: '2026-01-18', dose: '5.0', weiWt: 72.8, niuWt: 75.0, weiSite: '左肚子', niuSite: '右肚子' },
+            { id: 14, date: '2026-01-25', dose: '5.0', weiWt: 72.2, niuWt: 75.0, weiSite: '右肚子', niuSite: '左肚子' },
+            { id: 15, date: '2026-02-01', dose: '5.0', weiWt: 71.2, niuWt: 74.5, weiSite: '左肚子', niuSite: '右肚子' },
+            { id: 16, date: '2026-02-08', dose: '5.0', weiWt: 70.0, niuWt: 74.0, weiSite: '右肚子', niuSite: '左肚子' },
+            { id: 17, date: '2026-02-15', dose: '暫停', weiWt: null, niuWt: null, weiSite: '', niuSite: '' },
+            { id: 18, date: '2026-02-22', dose: '暫停', weiWt: null, niuWt: null, weiSite: '', niuSite: '' },
+            { id: 19, date: '2026-03-01', dose: '5.0', weiWt: 71.4, niuWt: 75.0, weiSite: '左肚子', niuSite: '右肚子' },
+            { id: 20, date: '2026-03-08', dose: '5.0', weiWt: null, niuWt: null, weiSite: '', niuSite: '' },
+            { id: 21, date: '2026-03-15', dose: '5.0', weiWt: 69.6, niuWt: 74.4, weiSite: '左肚子', niuSite: '右肚子' },
+            { id: 22, date: '2026-03-22', dose: '5.0', weiWt: 69.8, niuWt: 74.5, weiSite: '左肚子', niuSite: '左肚子' },
+            { id: 23, date: '2026-03-29', dose: '5.0', weiWt: 69.4, niuWt: 73.5, weiSite: '右肚子', niuSite: '右肚子' },
+            { id: 24, date: '2026-04-05', dose: '5.0', weiWt: null, niuWt: null, weiSite: '左肚子', niuSite: '左肚子' },
+            { id: 25, date: '2026-04-12', dose: '5.0', weiWt: 68.0, niuWt: 73.0, weiSite: '右肚子', niuSite: '右肚子' },
+            { id: 26, date: '2026-04-19', dose: '2.5', weiWt: null, niuWt: null, weiSite: '左肚子', niuSite: '左肚子' },
+            { id: 27, date: '2026-05-03', dose: '2.5', weiWt: null, niuWt: null, weiSite: '', niuSite: '' }
+        ];
+
+        // 讀取資料，如果沒有 weiNiuMounjaro_v3 的紀錄，才讀取 initialData，並存入 localStorage
+        let records = JSON.parse(localStorage.getItem('weiNiuMounjaro_v3'));
+        
+        // 強制檢查：如果讀不到資料或是資料是空的，就塞入歷史資料
+        if (!records || records.length === 0) {
+            records = initialData;
+            localStorage.setItem('weiNiuMounjaro_v3', JSON.stringify(records));
+        }
+
+        let weightChartInstance = null;
+
+        document.getElementById('date').valueAsDate = new Date();
+
+        document.getElementById('trackerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const weiInput = document.getElementById('weiWt').value;
+            const niuInput = document.getElementById('niuWt').value;
+            const newRecord = {
+                id: Date.now(),
+                date: document.getElementById('date').value,
+                dose: document.getElementById('dose').value,
+                weiWt: weiInput ? parseFloat(weiInput) : null,
+                niuWt: niuInput ? parseFloat(niuInput) : null,
+                weiSite: document.getElementById('weiSite').value,
+                niuSite: document.getElementById('niuSite').value,
+            };
+            records.push(newRecord);
+            records.sort((a, b) => new Date(a.date) - new Date(b.date));
+            saveData();
+            updateUI();
+            
+            document.getElementById('weiWt').value = '';
+            document.getElementById('niuWt').value = '';
+            document.getElementById('weiSite').value = '';
+            document.getElementById('niuSite').value = '';
+        });
+
+        function deleteRecord(id) {
+            if(confirm('確定要刪除這筆紀錄嗎？')) {
+                records = records.filter(record => record.id !== id);
+                saveData();
+                updateUI();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('weiNiuMounjaro_v3', JSON.stringify(records));
+        }
+
+        function formatLoss(val) {
+            if (val === null || isNaN(val)) return '-';
+            const num = parseFloat(val);
+            if (num > 0) return `<span class="text-red-500 font-bold">+${num.toFixed(1)}</span>`;
+            if (num < 0) return `<span class="text-green-600 font-bold">${num.toFixed(1)}</span>`;
+            return `<span class="text-gray-500 font-bold">0.0</span>`;
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('recordTableBody');
+            tbody.innerHTML = '';
+            
+            let firstWei = null, firstNiu = null;
+            let prevWei = null, prevNiu = null;
+
+            records.forEach(record => {
+                let weiWeekly = null, weiTotal = null;
+                if (record.weiWt !== null) {
+                    if (firstWei === null) firstWei = record.weiWt;
+                    weiWeekly = prevWei !== null ? record.weiWt - prevWei : 0;
+                    weiTotal = record.weiWt - firstWei;
+                    prevWei = record.weiWt;
+                }
+
+                let niuWeekly = null, niuTotal = null;
+                if (record.niuWt !== null) {
+                    if (firstNiu === null) firstNiu = record.niuWt;
+                    niuWeekly = prevNiu !== null ? record.niuWt - prevNiu : 0;
+                    niuTotal = record.niuWt - firstNiu;
+                    prevNiu = record.niuWt;
+                }
+
+                const doseDisplay = record.dose === '暫停' 
+                    ? `<span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">暫停</span>`
+                    : `<span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded">${record.dose}</span>`;
+
+                const weiDisplay = record.weiWt 
+                    ? `<span class="font-bold text-blue-600 text-base">${record.weiWt}</span> <span class="text-xs text-gray-500 block md:inline">${record.weiSite ? '('+record.weiSite+')' : ''}</span>` 
+                    : '-';
+                const weiStatsDisplay = record.weiWt ? `${formatLoss(weiWeekly)} / ${formatLoss(weiTotal)}` : '-';
+                
+                const niuDisplay = record.niuWt 
+                    ? `<span class="font-bold text-pink-600 text-base">${record.niuWt}</span> <span class="text-xs text-gray-500 block md:inline">${record.niuSite ? '('+record.niuSite+')' : ''}</span>` 
+                    : '-';
+                const niuStatsDisplay = record.niuWt ? `${formatLoss(niuWeekly)} / ${formatLoss(niuTotal)}` : '-';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50';
+                tr.innerHTML = `
+                    <td class="py-2 px-4 whitespace-nowrap text-xs md:text-sm">${record.date}</td>
+                    <td class="py-2 px-2 text-center">${doseDisplay}</td>
+                    
+                    <td class="py-2 px-2 text-center bg-blue-50/40">${weiDisplay}</td>
+                    <td class="py-2 px-2 text-center bg-blue-100/40 text-xs md:text-sm tracking-wide">${weiStatsDisplay}</td>
+                    
+                    <td class="py-2 px-2 text-center bg-pink-50/40">${niuDisplay}</td>
+                    <td class="py-2 px-2 text-center bg-pink-100/40 text-xs md:text-sm tracking-wide">${niuStatsDisplay}</td>
+                    
+                    <td class="py-2 px-2 text-center">
+                        <button onclick="deleteRecord(${record.id})" class="text-red-400 hover:text-red-600 text-xs font-bold">刪除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            const labels = records.map(r => r.date);
+            const weiData = records.map(r => r.weiWt);
+            const niuData = records.map(r => r.niuWt);
+
+            if (weightChartInstance) { weightChartInstance.destroy(); }
+
+            weightChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Wei 體重 (kg)',
+                            data: weiData,
+                            borderColor: 'rgb(37, 99, 235)',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgb(37, 99, 235)',
+                            spanGaps: true,
+                            tension: 0.2
+                        },
+                        {
+                            label: 'Niu 體重 (kg)',
+                            data: niuData,
+                            borderColor: 'rgb(219, 39, 119)',
+                            backgroundColor: 'rgba(219, 39, 119, 0.1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgb(219, 39, 119)',
+                            spanGaps: true,
+                            tension: 0.2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { min: 65, max: 85, title: { display: true, text: '體重 (kg)' } }
+                    }
+                }
+            });
+        }
+function updateUI() {
+            updateTable(); // 更新下方表格
+            updateChart(); // 更新上方圖表
+        }
+        updateUI();
+    </script>
+</body>
+</html>
