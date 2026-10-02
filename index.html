@@ -154,7 +154,7 @@
         
         document.getElementById('date').valueAsDate = new Date();
 
-        // 原本的預設歷史資料 (供初始化使用)
+        // 預設歷史資料
         const initialData = [
             { date: '2025-10-24', dose: '2.5', weiWt: 84.0, niuWt: 83.0, weiSite: '', niuSite: '' },
             { date: '2025-10-31', dose: '2.5', weiWt: 81.6, niuWt: 81.8, weiSite: '', niuSite: '' },
@@ -241,7 +241,7 @@
             document.getElementById('niuSite').value = '';
         });
 
-        // 3. 刪除 Firebase 資料 (需綁定在 window 上才能在 HTML 呼叫)
+        // 3. 刪除 Firebase 資料
         window.deleteRecord = function(dbKey) {
             if(confirm('確定要刪除這筆紀錄嗎？')) {
                 remove(ref(database, 'records/' + dbKey));
@@ -298,7 +298,6 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-50';
                 
-                // 注意刪除按鈕改為傳入 record.dbKey
                 tr.innerHTML = `
                     <td class="py-2 px-4 whitespace-nowrap text-xs md:text-sm">${record.date}</td>
                     <td class="py-2 px-2 text-center">${doseDisplay}</td>
